@@ -12,7 +12,7 @@ I chose to work with SCFF because of its unique layer wise training approach. Un
 
 Can we train SCFF networks across multiple clients without sharing raw data, and still achieve the same accuracy as training on centralized data?
 
-**Answer:** Yes, and in my experiments the federated approach actually exceeded centralized training accuracy (78.26% vs 76.0% on CIFAR10 with 5 clients).
+**Answer:** Yes, and in my experiments the federated approach has a difference of +- 2% gap from centralized (78.26% vs 80.15% on CIFAR10 with 5 clients).
 
 ### Background on SCFF
 
@@ -147,15 +147,9 @@ I ran the experiment with 5 clients on the full CIFAR10 dataset (50,000 training
 
 | Configuration | Test Accuracy |
 |---------------|---------------|
-| Centralized SCFF (baseline) | 76.0% |
+| Centralized SCFF (baseline) | 80.15% |
 | Federated SCFF (5 clients) | 78.26% |
-| Improvement | +2.26% |
 
-The federated version actually achieved slightly better accuracy than the centralized baseline. This was a pleasant surprise. I believe this might be due to:
-
-1. The regularization effect of averaging weights across clients
-2. Each client seeing a different random partition acts like additional data augmentation
-3. The layer wise training ensuring each layer fully converges before moving on
 
 The train test gap of about 8% (86.74% vs 78.26%) indicates some overfitting but is within acceptable range for CIFAR10. The model generalizes well to unseen data.
 
@@ -273,10 +267,6 @@ The server never sees raw data. However, I should note that model weights can po
 My main finding is that SCFF is surprisingly well suited for federated learning. The layer wise training approach means we can train each layer to completion across all clients before moving on, avoiding many of the convergence issues that plague standard federated learning.
 
 The key insight is that SCFF layers are independent. There is no gradient flow between layers, so we do not have to worry about stale gradients or mismatched optimizer states across layers. Each layer can be treated as a separate federated learning problem.
-
-What surprised me most was that the federated version actually outperformed centralized training (78.26% vs 76%). I did not expect this. My hypothesis is that distributing training across clients acts as a form of regularization. When you average weights from clients that trained on different data partitions, you get a model that generalizes better than one trained on all data at once.
-
-This is a significant result because it suggests that for SCFF networks, federated learning is not just a privacy preserving compromise but might actually improve model quality.
 
 ### Future Directions
 
